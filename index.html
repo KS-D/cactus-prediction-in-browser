@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>TestTensorflowjs!</title>
+</head>
+    <header>Click on a Photo to determine if there is a cactus</header>
+<body>
+
+   
+   
+   <div class='choices'>
+    
+    <div class='choice'>
+     <img  src="images/0004be2cfeaba1c0361d39e2b000257b.jpg" alt="it's an aerial photo of a cactus!" onclick="predictCactus(this)">
+    </div >
+    <div class='choice'>
+     <img src="images/003bb64852016d9c87871ddd8e25ab03.jpg" alt="it's an aerial photo of a cactus!" onclick="predictCactus(this)">
+    </div>
+   <div class='choice'>
+    <img src="images/0062380830fe60c692a148afe64906ac.jpg" alt="it's an aerial photo of a cactus!" onclick="predictCactus(this)">
+   </div>  
+    </div> 
+   
+    <h2 id='isCactus'></h2> 
+</body>
+<script>
+    async function predictCactus(img){
+        const model = await tf.loadLayersModel('jsModel/model.json');
+        let result = document.getElementById('isCactus');
+        
+
+        const prediction = model.predict(processImage(img)).dataSync();
+
+        console.log(prediction);
+
+        prediction > .5 ? result.textContent = 'IT IS A CACTUS!!!'
+            : result.textContent = 'There aint no cactus in that picture!';
+
+    }
+
+    function processImage(img){
+        let tensor = tf.browser.fromPixels(img);
+
+        const resized = tf.image.resizeBilinear(tensor, [32,32]).toFloat();
+
+        const offset = tf.scalar(255.0);
+        const normalized = tf.scalar(1.0).sub(resized.div(offset));
+        const batched = normalized.expandDims(0)
+
+        return batched;
+    }
+
+    predictCactus();
+</script>
+</html>
